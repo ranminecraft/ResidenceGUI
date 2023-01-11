@@ -3,7 +3,7 @@ main: com.ranmc.residence.gui.Main
 description: '桃花源定制24k纯钛合金超级无敌终终终终极版的领地菜单插件'
 website: https://www.ranmc.cn/
 author: Ranica
-version: Beta 2.1
+version: Beta 2.2
 api-version: 1.19
 softdepend: [Residence,ProtocolLib]
 

@@ -119,15 +119,12 @@ public class Main extends Basic implements Listener {
 		
 		Player p = (Player) event.getWhoClicked();
 		ItemStack clicked = event.getCurrentItem();
-		if (clicked==null) {
-			return;
-		}
 		
 		//公共权限菜单
 		if (event.getView().getTitle().contains(color("&e&l领地管理丨公共权限"))) {
 			//取消点击
 			event.setCancelled(true);
-			
+			if (clicked==null) return;
 			//获取所在领地
 			ClaimedResidence claimedResidence = ResidenceApi.getResidenceManager().getByLoc(p.getLocation());
 			//判断是否在领地
@@ -314,7 +311,7 @@ public class Main extends Basic implements Listener {
 		if (event.getView().getTitle().contains(color("&e&l领地管理丨玩家权限"))) {
 			//取消点击
 			event.setCancelled(true);
-			
+			if (clicked==null) return;
 			//获取所在领地
 			ClaimedResidence claimedResidence = ResidenceApi.getResidenceManager().getByLoc(p.getLocation());
 			//判断是否在领地
@@ -400,7 +397,7 @@ public class Main extends Basic implements Listener {
 		if (event.getView().getTitle().contains(color("&e&l领地管理丨玩家"))) {
 			//取消点击
 			event.setCancelled(true);
-			
+			if (clicked==null) return;
 			//获取所在领地
 			ClaimedResidence claimedResidence = ResidenceApi.getResidenceManager().getByLoc(p.getLocation());
 			//判断是否在领地
@@ -454,7 +451,7 @@ public class Main extends Basic implements Listener {
 		if (event.getView().getTitle().contains(color("&e&l领地管理丨添加玩家"))) {
 			//取消点击
 			event.setCancelled(true);
-			
+			if (clicked==null) return;
 			//获取所在领地
 			ClaimedResidence claimedResidence = ResidenceApi.getResidenceManager().getByLoc(p.getLocation());
 			//判断是否在领地
