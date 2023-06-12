@@ -20,9 +20,11 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,7 +64,7 @@ public class Basic extends JavaPlugin {
         try {
             URL url=new URL(WEB + "plugins/resgui.txt");
             InputStream is = url.openStream();
-            BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             lastest = br.readLine();
         } catch (Exception e) {
             e.printStackTrace();
@@ -93,7 +95,7 @@ public class Basic extends JavaPlugin {
      */
     public static String removeBrackets(String text) {
         List<String> list = new ArrayList<>();
-        Pattern p = Pattern.compile("(\\[[^\\]]*\\])");
+        Pattern p = Pattern.compile("(\\[[^]]*])");
         Matcher m = p.matcher(text);
         while (m.find()) {
             list.add(m.group().substring(1, m.group().length() - 1));
@@ -113,18 +115,18 @@ public class Basic extends JavaPlugin {
     public void setFlag(InventoryClickEvent event, String perm, ClaimedResidence claimedResidence) {
         Inventory inventory = event.getClickedInventory();
         if (event.getClick()== ClickType.RIGHT) {
-            inventory.setItem(event.getRawSlot(), setItemLore(event.getCurrentItem(), 0, "&e权限状态: &c未设置"));
+            Objects.requireNonNull(inventory).setItem(event.getRawSlot(), setItemLore(Objects.requireNonNull(event.getCurrentItem()), 0, "&e权限状态: &c未设置"));
             claimedResidence.getPermissions().setFlag(perm, FlagPermissions.FlagState.NEITHER);
             return;
         }
         if (claimedResidence.getPermissions().getFlags().get(perm) == null) {
-            inventory.setItem(event.getRawSlot(), setItemLore(event.getCurrentItem(), 0, "&e权限状态: &c是"));
+            Objects.requireNonNull(inventory).setItem(event.getRawSlot(), setItemLore(Objects.requireNonNull(event.getCurrentItem()), 0, "&e权限状态: &c是"));
             claimedResidence.getPermissions().setFlag(perm, FlagPermissions.FlagState.TRUE);
         } else if (claimedResidence.getPermissions().getFlags().get(perm)) {
-            inventory.setItem(event.getRawSlot(), setItemLore(event.getCurrentItem(), 0, "&e权限状态: &c否"));
+            Objects.requireNonNull(inventory).setItem(event.getRawSlot(), setItemLore(Objects.requireNonNull(event.getCurrentItem()), 0, "&e权限状态: &c否"));
             claimedResidence.getPermissions().setFlag(perm, FlagPermissions.FlagState.FALSE);
         } else if (!claimedResidence.getPermissions().getFlags().get(perm)) {
-            inventory.setItem(event.getRawSlot(), setItemLore(event.getCurrentItem(), 0, "&e权限状态: &c是"));
+            Objects.requireNonNull(inventory).setItem(event.getRawSlot(), setItemLore(Objects.requireNonNull(event.getCurrentItem()), 0, "&e权限状态: &c是"));
             claimedResidence.getPermissions().setFlag(perm, FlagPermissions.FlagState.TRUE);
         }
     }
@@ -132,18 +134,18 @@ public class Basic extends JavaPlugin {
     public void setFlag(InventoryClickEvent event,String perm,ClaimedResidence claimedResidence,String playerName) {
         Inventory inventory = event.getClickedInventory();
         if (event.getClick()==ClickType.RIGHT) {
-            inventory.setItem(event.getRawSlot(), setItemLore(event.getCurrentItem(), 0, "&e权限状态: &c未设置"));
+            Objects.requireNonNull(inventory).setItem(event.getRawSlot(), setItemLore(Objects.requireNonNull(event.getCurrentItem()), 0, "&e权限状态: &c未设置"));
             claimedResidence.getPermissions().setFlag(perm, FlagPermissions.FlagState.NEITHER);
             return;
         }
         if (claimedResidence.getPermissions().getPlayerFlags(playerName).get(perm) == null) {
-            inventory.setItem(event.getRawSlot(), setItemLore(event.getCurrentItem(), 0, "&e权限状态: &c是"));
+            Objects.requireNonNull(inventory).setItem(event.getRawSlot(), setItemLore(Objects.requireNonNull(event.getCurrentItem()), 0, "&e权限状态: &c是"));
             claimedResidence.getPermissions().setPlayerFlag(playerName, perm, FlagPermissions.FlagState.TRUE);
         } else if (claimedResidence.getPermissions().getPlayerFlags(playerName).get(perm)) {
-            inventory.setItem(event.getRawSlot(), setItemLore(event.getCurrentItem(), 0, "&e权限状态: &c否"));
+            Objects.requireNonNull(inventory).setItem(event.getRawSlot(), setItemLore(Objects.requireNonNull(event.getCurrentItem()), 0, "&e权限状态: &c否"));
             claimedResidence.getPermissions().setPlayerFlag(playerName, perm, FlagPermissions.FlagState.FALSE);
         } else if (!claimedResidence.getPermissions().getPlayerFlags(playerName).get(perm)) {
-            inventory.setItem(event.getRawSlot(), setItemLore(event.getCurrentItem(), 0, "&e权限状态: &c是"));
+            Objects.requireNonNull(inventory).setItem(event.getRawSlot(), setItemLore(Objects.requireNonNull(event.getCurrentItem()), 0, "&e权限状态: &c是"));
             claimedResidence.getPermissions().setPlayerFlag(playerName, perm, FlagPermissions.FlagState.TRUE);
         }
     }
@@ -157,8 +159,8 @@ public class Basic extends JavaPlugin {
      */
     public ItemStack setItemLore(ItemStack item, int i, String s) {
         ItemMeta meta = item.getItemMeta();
-        ArrayList<String> Lore = (ArrayList<String>) meta.getLore();
-        Lore.set(i, color(s));
+        ArrayList<String> Lore = (ArrayList<String>) Objects.requireNonNull(meta).getLore();
+        Objects.requireNonNull(Lore).set(i, color(s));
         meta.setLore(Lore);
         if (s.contains("是")) {
             meta.addEnchant(Enchantment.LUCK,1,true);
@@ -209,7 +211,7 @@ public class Basic extends JavaPlugin {
     public ItemStack createItem(Material m, String name) {
         ItemStack item = new ItemStack(m);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(color(name));
+        Objects.requireNonNull(meta).setDisplayName(color(name));
         item.setItemMeta(meta);
         return item;
     }
@@ -217,11 +219,9 @@ public class Basic extends JavaPlugin {
     public ItemStack createItem(Material m, String name, String... lore) {
         ItemStack item = new ItemStack(m);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(color(name));
+        Objects.requireNonNull(meta).setDisplayName(color(name));
         List<String> loreList = Arrays.asList(lore);
-        for (int i = 0; i < loreList.size(); i++) {
-            loreList.set(i, color(loreList.get(i)));
-        }
+        loreList.replaceAll(this::color);
         meta.setLore(loreList);
         item.setItemMeta(meta);
         return item;
@@ -230,7 +230,7 @@ public class Basic extends JavaPlugin {
     public ItemStack createPermItem(Material m, String name, String... lore) {
         ItemStack item = new ItemStack(m);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(color(name));
+        Objects.requireNonNull(meta).setDisplayName(color(name));
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         List<String> loreList = new ArrayList<>();
@@ -250,12 +250,10 @@ public class Basic extends JavaPlugin {
     public ItemStack createSkullItem(Material m, Player player, String... lore) {
         ItemStack item = new ItemStack(m);
         SkullMeta meta = (SkullMeta) item.getItemMeta();
-        meta.setOwningPlayer(player);
+        Objects.requireNonNull(meta).setOwningPlayer(player);
         meta.setDisplayName(color("&b" + player.getName()));
         List<String> loreList = Arrays.asList(lore);
-        for (int i = 0; i < loreList.size(); i++) {
-            loreList.set(i, color(loreList.get(i)));
-        }
+        loreList.replaceAll(this::color);
         meta.setLore(loreList);
         item.setItemMeta(meta);
         return item;

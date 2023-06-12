@@ -1,12 +1,10 @@
 package com.ranmc.residence.gui;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import cc.ranmc.entries.InputGUI;
 import com.bekvon.bukkit.residence.api.ResidenceApi;
 import com.bekvon.bukkit.residence.event.ResidenceChangedEvent;
+import com.bekvon.bukkit.residence.protection.ClaimedResidence;
+import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -23,13 +21,14 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.scheduler.BukkitScheduler;
 
-import com.bekvon.bukkit.residence.protection.ClaimedResidence;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 public class Main extends Basic implements Listener {
-
-	private SignMenuFactory signMenuFactory;
 	
 	//初始化
 	@Override
@@ -41,7 +40,7 @@ public class Main extends Basic implements Listener {
 		info("§e-----------------------");
 
 		//注册指令
-		getCommand("resgui").setExecutor(new ResguiCommand(this));
+		Objects.requireNonNull(getCommand("resgui")).setExecutor(new ResguiCommand(this));
 
 	    //加载配置
 	    loadConfig();
@@ -51,7 +50,6 @@ public class Main extends Basic implements Listener {
 	    
 	    //注册Event
         Bukkit.getPluginManager().registerEvents(this, this);
-        signMenuFactory = new SignMenuFactory(this);
         
 		super.onEnable();
 	}
@@ -106,8 +104,8 @@ public class Main extends Basic implements Listener {
 	@EventHandler
 	public void onResidenceChangedEvent(ResidenceChangedEvent event) {
 		Player player = event.getPlayer();
-		if (player.getOpenInventory() != null &&
-				player.getOpenInventory().getTitle().contains(color("&e&l领地管理丨"))) {
+		player.getOpenInventory();
+		if (player.getOpenInventory().getTitle().contains(color("&e&l领地管理丨"))) {
 			player.closeInventory();
 		}
 	}
@@ -147,7 +145,7 @@ public class Main extends Basic implements Listener {
 			
 			//设置权限
 			if (event.getRawSlot() <= 35 && event.getCurrentItem() != null) {
-				String permName = event.getCurrentItem().getItemMeta().getDisplayName();
+				String permName = Objects.requireNonNull(event.getCurrentItem().getItemMeta()).getDisplayName();
 				permName = permName.substring(permName.indexOf("(")+1,permName.indexOf(")"));
 				setFlag(event,permName,claimedResidence);
 				return;
@@ -165,39 +163,37 @@ public class Main extends Basic implements Listener {
 				//左键点击设置进入消息
 				if (event.getClick()==ClickType.LEFT) {
 					//打开牌子菜单
-					SignMenuFactory.Menu menu = signMenuFactory.newMenu(Arrays.asList("欢迎%player来到"+claimedResidence.getResidenceName(),"","",""))
-				            .reopenIfFail(true)
+					new InputGUI().open(p, "欢迎%player来到" + claimedResidence.getResidenceName())
 				            .response((player, strings) -> {
 				            	claimedResidence.setEnterMessage(strings[0]+strings[1]+strings[2]+strings[3]);
 				            	p.sendMessage(color("&e消息文本已设置"));
 				                return true;
 				            });
-
-				    menu.open(p);
 				}
-				//右键点击设置进入消息
+				// 右键点击设置进入消息
 				if (event.getClick()==ClickType.RIGHT) {
 					//打开牌子菜单
-					SignMenuFactory.Menu menu = signMenuFactory.newMenu(Arrays.asList("%player离开了"+claimedResidence.getResidenceName(),"","",""))
-				            .reopenIfFail(true)
+					new InputGUI().open(p, "%player离开了"+claimedResidence.getResidenceName())
 				            .response((player, strings) -> {
 				            	claimedResidence.setLeaveMessage(strings[0]+strings[1]+strings[2]+strings[3]);
 				            	p.sendMessage(color("&e消息文本已设置"));
 				                return true;
 				            });
-
-				    menu.open(p);
 				}
 				return;
 			}
 			
-			//显示领地边界
+			// 显示领地边界
 			if (event.getRawSlot() == 47) {
+				p.closeInventory();
+				if (claimedResidence.getTotalSize() > 15360000) {
+					p.chat("/res show");
+					return;
+				}
 				Location lowloc = claimedResidence.getAreaArray()[0].getLowLoc();
 				Location highloc = claimedResidence.getAreaArray()[0].getHighLoc();
-				//异步处理
-				BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-				scheduler.scheduleSyncDelayedTask(this, () -> {
+				// 异步处理
+				PaperLib.getChunkAtAsync(lowloc).thenAccept(chunk -> {
 					for (int i = 0; i <= highloc.getBlockX()-lowloc.getBlockX(); i++) {
 						Location lowlocloccopy = new Location(lowloc.getWorld(),lowloc.getBlockX(),lowloc.getBlockY(),lowloc.getBlockZ());
 						if (lowlocloccopy.getChunk().isLoaded()) {
@@ -209,6 +205,8 @@ public class Main extends Basic implements Listener {
 							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
 							lowlocloccopy.setZ(lowloc.getBlockZ());
 							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
+						} else {
+							System.out.println("1");
 						}
 					}
 					for (int i = 0; i <= highloc.getBlockZ()-lowloc.getBlockZ(); i++) {
@@ -222,6 +220,8 @@ public class Main extends Basic implements Listener {
 							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
 							lowlocloccopy.setX(lowloc.getBlockX());
 							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
+						} else {
+							System.out.println("1");
 						}
 					}
 					for (int i = 0; i <= highloc.getBlockY()-lowloc.getBlockY(); i++) {
@@ -235,55 +235,55 @@ public class Main extends Basic implements Listener {
 							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
 							lowlocloccopy.setX(lowloc.getBlockX());
 							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
+						} else {
+							System.out.println("1");
 						}
 					}
-				},1);
+				});
 				
-				//消失边界显示
-				BukkitScheduler scheduler2 = Bukkit.getServer().getScheduler();
-				scheduler2.scheduleSyncDelayedTask(this, () -> {
-					for (int i = 0; i <= highloc.getBlockX()-lowloc.getBlockX(); i++) {
-						Location lowlocloccopy = new Location(lowloc.getWorld(),lowloc.getBlockX(),lowloc.getBlockY(),lowloc.getBlockZ());
-						if (lowlocloccopy.getChunk().isLoaded()) {
-							lowlocloccopy.setX(lowloc.getBlockX()+i);
-							p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(),(byte) 0);
-							lowlocloccopy.setZ(highloc.getBlockZ());
-							p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(),(byte) 0);
-							lowlocloccopy.setY(highloc.getBlockY());
-							p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(),(byte) 0);
-							lowlocloccopy.setZ(lowloc.getBlockZ());
-							p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(),(byte) 0);
-						}
-					}
-					for (int i = 0; i <= highloc.getBlockZ()-lowloc.getBlockZ(); i++) {
-						Location lowlocloccopy = new Location(lowloc.getWorld(),lowloc.getBlockX(),lowloc.getBlockY(),lowloc.getBlockZ());
-						if (lowlocloccopy.getChunk().isLoaded()) {
-							lowlocloccopy.setZ(lowloc.getBlockZ()+i);
-							p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(),(byte) 0);
-							lowlocloccopy.setX(highloc.getBlockX());
-							p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(),(byte) 0);
-							lowlocloccopy.setY(highloc.getBlockY());
-							p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(),(byte) 0);
-							lowlocloccopy.setX(lowloc.getBlockX());
-							p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(),(byte) 0);
-						}
-					}
-					for (int i = 0; i <= highloc.getBlockY()-lowloc.getBlockY(); i++) {
-						Location lowlocloccopy = new Location(lowloc.getWorld(),lowloc.getBlockX(),lowloc.getBlockY(),lowloc.getBlockZ());
-						if (lowlocloccopy.getChunk().isLoaded()) {
-							lowlocloccopy.setY(lowloc.getBlockY()+i);
-							p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(),(byte) 0);
-							lowlocloccopy.setX(highloc.getBlockX());
-							p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(),(byte) 0);
-							lowlocloccopy.setZ(highloc.getBlockZ());
-							p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(),(byte) 0);
-							lowlocloccopy.setX(lowloc.getBlockX());
-							p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(),(byte) 0);
-						}
-					}
-				},getConfig().getInt("GlassShowTime", 5) * 20);
-				
-				p.closeInventory();
+				// 消失边界显示
+				Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () ->
+						PaperLib.getChunkAtAsync(lowloc).thenAccept(chunk -> {
+							for (int i = 0; i <= highloc.getBlockX() - lowloc.getBlockX(); i++) {
+								Location lowlocloccopy = new Location(lowloc.getWorld(), lowloc.getBlockX(), lowloc.getBlockY(), lowloc.getBlockZ());
+								if (lowlocloccopy.getChunk().isLoaded()) {
+									lowlocloccopy.setX(lowloc.getBlockX() + i);
+									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+									lowlocloccopy.setZ(highloc.getBlockZ());
+									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+									lowlocloccopy.setY(highloc.getBlockY());
+									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+									lowlocloccopy.setZ(lowloc.getBlockZ());
+									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+								}
+							}
+							for (int i = 0; i <= highloc.getBlockZ() - lowloc.getBlockZ(); i++) {
+								Location lowlocloccopy = new Location(lowloc.getWorld(), lowloc.getBlockX(), lowloc.getBlockY(), lowloc.getBlockZ());
+								if (lowlocloccopy.getChunk().isLoaded()) {
+									lowlocloccopy.setZ(lowloc.getBlockZ() + i);
+									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+									lowlocloccopy.setX(highloc.getBlockX());
+									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+									lowlocloccopy.setY(highloc.getBlockY());
+									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+									lowlocloccopy.setX(lowloc.getBlockX());
+									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+								}
+							}
+							for (int i = 0; i <= highloc.getBlockY() - lowloc.getBlockY(); i++) {
+								Location lowlocloccopy = new Location(lowloc.getWorld(), lowloc.getBlockX(), lowloc.getBlockY(), lowloc.getBlockZ());
+								if (lowlocloccopy.getChunk().isLoaded()) {
+									lowlocloccopy.setY(lowloc.getBlockY() + i);
+									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+									lowlocloccopy.setX(highloc.getBlockX());
+									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+									lowlocloccopy.setZ(highloc.getBlockZ());
+									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+									lowlocloccopy.setX(lowloc.getBlockX());
+									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+								}
+							}
+						}),getConfig().getInt("GlassShowTime", 5) * 20L);
 				return;
 			}
 			
@@ -359,7 +359,7 @@ public class Main extends Basic implements Listener {
 			}
 			
 			if (event.getRawSlot() < 49 && event.getCurrentItem() != null) {
-				String playerName = event.getCurrentItem().getItemMeta().getDisplayName().replace("§b", "");
+				String playerName = Objects.requireNonNull(event.getCurrentItem().getItemMeta()).getDisplayName().replace("§b", "");
 				Inventory inventory = Bukkit.createInventory(null, 54, color("&e&l领地管理丨玩家"+playerName));
 				CreatePermButton(claimedResidence,inventory,Material.LEATHER_BOOTS,0,"&b移动&f(move)","&e是否允许进入领地并移动",playerName);
 		        CreatePermButton(claimedResidence,inventory,Material.DIAMOND_PICKAXE,1,"&b建筑&f(build)","&e是否允许放置或破坏方块",playerName);
@@ -440,7 +440,7 @@ public class Main extends Basic implements Listener {
 			
 			//设置玩家权限
 			if (event.getRawSlot() < 49 && event.getCurrentItem() != null) {
-				String permName = event.getCurrentItem().getItemMeta().getDisplayName();
+				String permName = Objects.requireNonNull(event.getCurrentItem().getItemMeta()).getDisplayName();
 				permName = permName.substring(permName.indexOf("(")+1,permName.indexOf(")"));
 				setFlag(event,permName,claimedResidence,event.getView().getTitle().split("玩家")[1]);
 				return;
@@ -478,19 +478,16 @@ public class Main extends Basic implements Listener {
 			}
 			
 			if (event.getRawSlot() == 49) {
-				SignMenuFactory.Menu menu = signMenuFactory.newMenu(Arrays.asList("此行输入玩家ID","","",""))
-			            .reopenIfFail(true)
+				new InputGUI().open(p, "此行输入玩家ID")
 			            .response((player, strings) -> {
 			            	chat(p,"/res padd "+claimedResidence.getResidenceName()+" "+strings[0]);
 			                return true;
 			            });
-
-			    menu.open(p);
 				return;
 			}
 			
 			if (event.getRawSlot() < 49 && event.getCurrentItem() != null) {
-				p.chat("/res padd "+claimedResidence.getResidenceName() + " " + ChatColor.stripColor(event.getCurrentItem().getItemMeta().getDisplayName()));
+				p.chat("/res padd "+claimedResidence.getResidenceName() + " " + ChatColor.stripColor(Objects.requireNonNull(event.getCurrentItem().getItemMeta()).getDisplayName()));
 				p.chat("/resgui perm");
 			}
 		}

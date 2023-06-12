@@ -15,10 +15,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class ResguiCommand implements CommandExecutor {
 
-    private Main plugin;
+    private final Main plugin;
 
     public ResguiCommand(Main plugin) {
         this.plugin = plugin;
@@ -57,12 +58,10 @@ public class ResguiCommand implements CommandExecutor {
         }
 
         //以下指令不能在控制台输入
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player p)) {
             plugin.info(plugin.color(Basic.PREFIX + "&c该指令不能在控制台输入"));
             return true;
         }
-
-        Player p = (Player) sender;
 
         //打开玩家权限管理菜单指令
         if (args.length == 1) {
@@ -74,7 +73,7 @@ public class ResguiCommand implements CommandExecutor {
                         return true;
                     }
 
-                    List<String> permList = Arrays.asList(plugin.removeBrackets(claimedResidence.getPermissions().listPlayersFlags().replace("§f", "")).split(" "));
+                    List<String> permList = Arrays.asList(Basic.removeBrackets(claimedResidence.getPermissions().listPlayersFlags().replace("§f", "")).split(" "));
                     Boolean admin = false;
                     if (permList.contains(p.getName())) {
                         admin = claimedResidence.getPermissions().getPlayerFlags(p.getName()).get("admin");
@@ -93,7 +92,7 @@ public class ResguiCommand implements CommandExecutor {
                                 line1 = "&e基础权限: &c否";
                             } else if (claimedResidence.getPermissions().getPlayerFlags(permList.get(i)).get("build")==null) {
                                 line1 = "&e基础权限: &c未设置";
-                            } else if (claimedResidence.getPermissions().getPlayerFlags(permList.get(i)).get("build")==true) {
+                            } else if (claimedResidence.getPermissions().getPlayerFlags(permList.get(i)).get("build")) {
                                 line1 = "&e基础权限: &c是";
                             }
                             inventory.setItem(inventorySize, plugin.createPermItem(Material.PLAYER_HEAD,"&b"+permList.get(i),line1,"&e查看更多详情"));
@@ -117,20 +116,18 @@ public class ResguiCommand implements CommandExecutor {
         if (args.length == 0) {
             if (sender.hasPermission("resgui.user")) {
 
-
-
                 ClaimedResidence claimedResidence = ResidenceApi.getResidenceManager().getByLoc(p.getLocation());
                 if (claimedResidence==null) {
                     p.sendMessage(plugin.color("&c你当前不在领地内"));
                     return true;
                 }
 
-                List<String> permList = Arrays.asList(plugin.removeBrackets(claimedResidence.getPermissions().listPlayersFlags().replace("§f", "")).split(" "));
+                List<String> permList = Arrays.asList(Basic.removeBrackets(claimedResidence.getPermissions().listPlayersFlags().replace("§f", "")).split(" "));
                 Boolean admin = false;
                 if (permList.contains(p.getName())) {
                     admin = claimedResidence.getPermissions().getPlayerFlags(p.getName()).get("admin");
                 }
-                if ((admin==null || !admin) && !claimedResidence.getOwner().equalsIgnoreCase(p.getName())) {
+                if ((admin == null || !admin) && !claimedResidence.getOwner().equalsIgnoreCase(p.getName())) {
                     p.sendMessage(plugin.color("&c你没有权限设置该领地"));
                     return true;
                 }
@@ -176,7 +173,7 @@ public class ResguiCommand implements CommandExecutor {
 
                 ItemStack item2 = new ItemStack(Material.ENCHANTED_BOOK);
                 ItemMeta meta2 = item2.getItemMeta();
-                meta2.setDisplayName(plugin.color("&b领地详情"));
+                Objects.requireNonNull(meta2).setDisplayName(plugin.color("&b领地详情"));
                 ArrayList<String> Lore2 = new ArrayList<>();
                 Lore2.add(plugin.color("&e领地名: "+ claimedResidence.getResidenceName()));
                 Lore2.add(plugin.color("&e领地主人: "+ claimedResidence.getOwner()));
