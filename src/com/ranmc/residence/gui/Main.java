@@ -1,6 +1,6 @@
 package com.ranmc.residence.gui;
 
-import cc.ranmc.entries.InputGUI;
+import cc.ranmc.sign.SignApi;
 import com.bekvon.bukkit.residence.api.ResidenceApi;
 import com.bekvon.bukkit.residence.event.ResidenceChangedEvent;
 import com.bekvon.bukkit.residence.protection.ClaimedResidence;
@@ -163,22 +163,22 @@ public class Main extends Basic implements Listener {
 				//左键点击设置进入消息
 				if (event.getClick()==ClickType.LEFT) {
 					//打开牌子菜单
-					new InputGUI().open(p, "欢迎%player来到" + claimedResidence.getResidenceName())
+					SignApi.newMenu("欢迎%player来到" + claimedResidence.getResidenceName())
 				            .response((player, strings) -> {
 				            	claimedResidence.setEnterMessage(strings[0]+strings[1]+strings[2]+strings[3]);
 				            	p.sendMessage(color("&e消息文本已设置"));
 				                return true;
-				            });
+				            }).open(p);
 				}
 				// 右键点击设置进入消息
 				if (event.getClick()==ClickType.RIGHT) {
 					//打开牌子菜单
-					new InputGUI().open(p, "%player离开了"+claimedResidence.getResidenceName())
+					SignApi.newMenu("%player离开了" + claimedResidence.getResidenceName())
 				            .response((player, strings) -> {
 				            	claimedResidence.setLeaveMessage(strings[0]+strings[1]+strings[2]+strings[3]);
 				            	p.sendMessage(color("&e消息文本已设置"));
 				                return true;
-				            });
+				            }).open(p);
 				}
 				return;
 			}
@@ -186,7 +186,7 @@ public class Main extends Basic implements Listener {
 			// 显示领地边界
 			if (event.getRawSlot() == 47) {
 				p.closeInventory();
-				if (claimedResidence.getTotalSize() > 15360000) {
+				if (Math.abs(claimedResidence.getTotalSize()) > 15360000) {
 					p.chat("/res show");
 					return;
 				}
@@ -205,8 +205,6 @@ public class Main extends Basic implements Listener {
 							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
 							lowlocloccopy.setZ(lowloc.getBlockZ());
 							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
-						} else {
-							System.out.println("1");
 						}
 					}
 					for (int i = 0; i <= highloc.getBlockZ()-lowloc.getBlockZ(); i++) {
@@ -220,8 +218,6 @@ public class Main extends Basic implements Listener {
 							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
 							lowlocloccopy.setX(lowloc.getBlockX());
 							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
-						} else {
-							System.out.println("1");
 						}
 					}
 					for (int i = 0; i <= highloc.getBlockY()-lowloc.getBlockY(); i++) {
@@ -235,8 +231,6 @@ public class Main extends Basic implements Listener {
 							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
 							lowlocloccopy.setX(lowloc.getBlockX());
 							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
-						} else {
-							System.out.println("1");
 						}
 					}
 				});
@@ -478,11 +472,11 @@ public class Main extends Basic implements Listener {
 			}
 			
 			if (event.getRawSlot() == 49) {
-				new InputGUI().open(p, "此行输入玩家ID")
+				SignApi.newMenu("此行输入玩家ID")
 			            .response((player, strings) -> {
 			            	chat(p,"/res padd "+claimedResidence.getResidenceName()+" "+strings[0]);
 			                return true;
-			            });
+			            }).open(p);
 				return;
 			}
 			
