@@ -1,4 +1,4 @@
-package com.ranmc.residence.gui;
+package cc.ranmc.residence.gui;
 
 import com.bekvon.bukkit.residence.api.ResidenceApi;
 import com.bekvon.bukkit.residence.protection.ClaimedResidence;

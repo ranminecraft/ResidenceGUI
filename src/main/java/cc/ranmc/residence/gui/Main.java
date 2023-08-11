@@ -1,10 +1,13 @@
-package com.ranmc.residence.gui;
+package cc.ranmc.residence.gui;
 
 import cc.ranmc.sign.SignApi;
 import com.bekvon.bukkit.residence.api.ResidenceApi;
 import com.bekvon.bukkit.residence.event.ResidenceChangedEvent;
 import com.bekvon.bukkit.residence.protection.ClaimedResidence;
-import io.papermc.lib.PaperLib;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -27,9 +30,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class Main extends Basic implements Listener {
-	
+
+	private final boolean folia = isFolia();
 	//初始化
 	@Override
 	public void onEnable() {
@@ -53,7 +58,21 @@ public class Main extends Basic implements Listener {
         
 		super.onEnable();
 	}
-	
+
+	/**
+	 * 是 Folia 端
+	 *
+	 * @return boolean
+	 */
+	public static boolean isFolia() {
+		try {
+			Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+			return true;
+		} catch (ClassNotFoundException ignored) {
+			return false;
+		}
+	}
+
 	//指令补全
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
@@ -73,29 +92,20 @@ public class Main extends Basic implements Listener {
 		super.onDisable();
 	}
 	
-	//加载配置
+	// 加载配置
 	public void loadConfig() {
 		
-		//配置文件
+		// 配置文件
         if (!new File(getDataFolder() + File.separator + "config.yml").exists()) {
                 saveDefaultConfig();
         }
         reloadConfig();
         
-        //加载Residence
-        if (Bukkit.getPluginManager().isPluginEnabled("Residence")) {
+        // 加载Residence
+        if (Bukkit.getPluginManager().getPlugin("Residence") != null) {
 			info(color(PREFIX + "&a成功加载Residence"));
-        }else {
+        } else {
 			info(color(PREFIX + "&c无法找到Residence"));
-       	 	PluginManager pluginManager = getServer().getPluginManager();
-			pluginManager.disablePlugin(this);
-        }
-        
-        //加载ProtocolLib
-        if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
-			info(color(PREFIX + "&a成功加载ProtocolLib"));
-        }else {
-			info(color(PREFIX + "&c无法找到ProtocolLib"));
        	 	PluginManager pluginManager = getServer().getPluginManager();
 			pluginManager.disablePlugin(this);
         }
@@ -192,92 +202,17 @@ public class Main extends Basic implements Listener {
 				}
 				Location lowloc = claimedResidence.getAreaArray()[0].getLowLoc();
 				Location highloc = claimedResidence.getAreaArray()[0].getHighLoc();
-				// 异步处理
-				PaperLib.getChunkAtAsync(lowloc).thenAccept(chunk -> {
-					for (int i = 0; i <= highloc.getBlockX()-lowloc.getBlockX(); i++) {
-						Location lowlocloccopy = new Location(lowloc.getWorld(),lowloc.getBlockX(),lowloc.getBlockY(),lowloc.getBlockZ());
-						if (lowlocloccopy.getChunk().isLoaded()) {
-							lowlocloccopy.setX(lowloc.getBlockX()+i);
-							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
-							lowlocloccopy.setZ(highloc.getBlockZ());
-							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
-							lowlocloccopy.setY(highloc.getBlockY());
-							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
-							lowlocloccopy.setZ(lowloc.getBlockZ());
-							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
-						}
-					}
-					for (int i = 0; i <= highloc.getBlockZ()-lowloc.getBlockZ(); i++) {
-						Location lowlocloccopy = new Location(lowloc.getWorld(),lowloc.getBlockX(),lowloc.getBlockY(),lowloc.getBlockZ());
-						if (lowlocloccopy.getChunk().isLoaded()) {
-							lowlocloccopy.setZ(lowloc.getBlockZ()+i);
-							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
-							lowlocloccopy.setX(highloc.getBlockX());
-							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
-							lowlocloccopy.setY(highloc.getBlockY());
-							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
-							lowlocloccopy.setX(lowloc.getBlockX());
-							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
-						}
-					}
-					for (int i = 0; i <= highloc.getBlockY()-lowloc.getBlockY(); i++) {
-						Location lowlocloccopy = new Location(lowloc.getWorld(),lowloc.getBlockX(),lowloc.getBlockY(),lowloc.getBlockZ());
-						if (lowlocloccopy.getChunk().isLoaded()) {
-							lowlocloccopy.setY(lowloc.getBlockY()+i);
-							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
-							lowlocloccopy.setX(highloc.getBlockX());
-							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
-							lowlocloccopy.setZ(highloc.getBlockZ());
-							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
-							lowlocloccopy.setX(lowloc.getBlockX());
-							p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
-						}
-					}
-				});
+				showEdge(p, lowloc, highloc);
 				
 				// 消失边界显示
-				Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () ->
-						PaperLib.getChunkAtAsync(lowloc).thenAccept(chunk -> {
-							for (int i = 0; i <= highloc.getBlockX() - lowloc.getBlockX(); i++) {
-								Location lowlocloccopy = new Location(lowloc.getWorld(), lowloc.getBlockX(), lowloc.getBlockY(), lowloc.getBlockZ());
-								if (lowlocloccopy.getChunk().isLoaded()) {
-									lowlocloccopy.setX(lowloc.getBlockX() + i);
-									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
-									lowlocloccopy.setZ(highloc.getBlockZ());
-									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
-									lowlocloccopy.setY(highloc.getBlockY());
-									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
-									lowlocloccopy.setZ(lowloc.getBlockZ());
-									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
-								}
-							}
-							for (int i = 0; i <= highloc.getBlockZ() - lowloc.getBlockZ(); i++) {
-								Location lowlocloccopy = new Location(lowloc.getWorld(), lowloc.getBlockX(), lowloc.getBlockY(), lowloc.getBlockZ());
-								if (lowlocloccopy.getChunk().isLoaded()) {
-									lowlocloccopy.setZ(lowloc.getBlockZ() + i);
-									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
-									lowlocloccopy.setX(highloc.getBlockX());
-									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
-									lowlocloccopy.setY(highloc.getBlockY());
-									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
-									lowlocloccopy.setX(lowloc.getBlockX());
-									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
-								}
-							}
-							for (int i = 0; i <= highloc.getBlockY() - lowloc.getBlockY(); i++) {
-								Location lowlocloccopy = new Location(lowloc.getWorld(), lowloc.getBlockX(), lowloc.getBlockY(), lowloc.getBlockZ());
-								if (lowlocloccopy.getChunk().isLoaded()) {
-									lowlocloccopy.setY(lowloc.getBlockY() + i);
-									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
-									lowlocloccopy.setX(highloc.getBlockX());
-									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
-									lowlocloccopy.setZ(highloc.getBlockZ());
-									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
-									lowlocloccopy.setX(lowloc.getBlockX());
-									p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
-								}
-							}
-						}),getConfig().getInt("GlassShowTime", 5) * 20L);
+				long hideDelay = getConfig().getInt("GlassShowTime", 5);
+				if (folia) {
+					Bukkit.getServer().getAsyncScheduler().runDelayed(this, scheduledTask ->
+							hideEdge(p, lowloc, highloc), hideDelay, TimeUnit.SECONDS);
+				} else {
+					Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () ->
+							hideEdge(p, lowloc, highloc), hideDelay * 20);
+				}
 				return;
 			}
 			
@@ -344,7 +279,7 @@ public class Main extends Basic implements Listener {
 						}
 					}
 				}
-				inventory.setItem(49, createItem(Material.OAK_SIGN, "&b手动添加", "§e找不到该玩家", "§e可能已经离线", "§e尝试输入名称"));
+				inventory.setItem(49, createItem(Material.WRITABLE_BOOK, "&b手动添加", "§e找不到该玩家", "§e可能已经离线", "§e尝试输入名称"));
 				ItemStack closeItem = createItem(Material.BARRIER, "&b返回菜单");
 				inventory.setItem(45, closeItem);
 				inventory.setItem(53, closeItem);
@@ -472,11 +407,12 @@ public class Main extends Basic implements Listener {
 			}
 			
 			if (event.getRawSlot() == 49) {
-				SignApi.newMenu("此行输入玩家ID")
-			            .response((player, strings) -> {
-			            	chat(p,"/res padd "+claimedResidence.getResidenceName()+" "+strings[0]);
-			                return true;
-			            }).open(p);
+				TextComponent text = new TextComponent(color("&a[点击添加领地权限]"));
+				String cmd = "/res padd " + claimedResidence.getResidenceName() + " 玩家名";
+				text.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(cmd).create()));
+				text.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, cmd));
+				p.spigot().sendMessage(text);
+				p.closeInventory();
 				return;
 			}
 			

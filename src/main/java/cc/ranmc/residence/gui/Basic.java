@@ -1,8 +1,9 @@
-package com.ranmc.residence.gui;
+package cc.ranmc.residence.gui;
 
 import com.bekvon.bukkit.residence.protection.ClaimedResidence;
 import com.bekvon.bukkit.residence.protection.FlagPermissions;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -14,7 +15,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -33,6 +33,105 @@ public class Basic extends JavaPlugin {
     public static String PREFIX = "§b[RESGUI] ";
     public static String AUTHOR = "§dRanica";
     public static String WEB = "https://www.ranmc.cn/";
+    public final boolean folia = isFolia();
+
+    public void showEdge(Player p, Location lowloc, Location highloc) {
+        for (int i = 0; i <= highloc.getBlockX()-lowloc.getBlockX(); i++) {
+            Location lowlocloccopy = new Location(lowloc.getWorld(),lowloc.getBlockX(),lowloc.getBlockY(),lowloc.getBlockZ());
+            if (lowlocloccopy.getChunk().isLoaded()) {
+                lowlocloccopy.setX(lowloc.getBlockX()+i);
+                p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
+                lowlocloccopy.setZ(highloc.getBlockZ());
+                p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
+                lowlocloccopy.setY(highloc.getBlockY());
+                p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
+                lowlocloccopy.setZ(lowloc.getBlockZ());
+                p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
+            }
+        }
+        for (int i = 0; i <= highloc.getBlockZ()-lowloc.getBlockZ(); i++) {
+            Location lowlocloccopy = new Location(lowloc.getWorld(),lowloc.getBlockX(),lowloc.getBlockY(),lowloc.getBlockZ());
+            if (lowlocloccopy.getChunk().isLoaded()) {
+                lowlocloccopy.setZ(lowloc.getBlockZ()+i);
+                p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
+                lowlocloccopy.setX(highloc.getBlockX());
+                p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
+                lowlocloccopy.setY(highloc.getBlockY());
+                p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
+                lowlocloccopy.setX(lowloc.getBlockX());
+                p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
+            }
+        }
+        for (int i = 0; i <= highloc.getBlockY()-lowloc.getBlockY(); i++) {
+            Location lowlocloccopy = new Location(lowloc.getWorld(),lowloc.getBlockX(),lowloc.getBlockY(),lowloc.getBlockZ());
+            if (lowlocloccopy.getChunk().isLoaded()) {
+                lowlocloccopy.setY(lowloc.getBlockY()+i);
+                p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
+                lowlocloccopy.setX(highloc.getBlockX());
+                p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
+                lowlocloccopy.setZ(highloc.getBlockZ());
+                p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
+                lowlocloccopy.setX(lowloc.getBlockX());
+                p.sendBlockChange(lowlocloccopy, Material.RED_STAINED_GLASS.createBlockData());
+            }
+        }
+    }
+
+    public void hideEdge(Player p, Location lowloc, Location highloc) {
+        for (int i = 0; i <= highloc.getBlockX() - lowloc.getBlockX(); i++) {
+            Location lowlocloccopy = new Location(lowloc.getWorld(), lowloc.getBlockX(), lowloc.getBlockY(), lowloc.getBlockZ());
+            if (lowlocloccopy.getChunk().isLoaded()) {
+                lowlocloccopy.setX(lowloc.getBlockX() + i);
+                p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+                lowlocloccopy.setZ(highloc.getBlockZ());
+                p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+                lowlocloccopy.setY(highloc.getBlockY());
+                p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+                lowlocloccopy.setZ(lowloc.getBlockZ());
+                p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+            }
+        }
+        for (int i = 0; i <= highloc.getBlockZ() - lowloc.getBlockZ(); i++) {
+            Location lowlocloccopy = new Location(lowloc.getWorld(), lowloc.getBlockX(), lowloc.getBlockY(), lowloc.getBlockZ());
+            if (lowlocloccopy.getChunk().isLoaded()) {
+                lowlocloccopy.setZ(lowloc.getBlockZ() + i);
+                p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+                lowlocloccopy.setX(highloc.getBlockX());
+                p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+                lowlocloccopy.setY(highloc.getBlockY());
+                p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+                lowlocloccopy.setX(lowloc.getBlockX());
+                p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+            }
+        }
+        for (int i = 0; i <= highloc.getBlockY() - lowloc.getBlockY(); i++) {
+            Location lowlocloccopy = new Location(lowloc.getWorld(), lowloc.getBlockX(), lowloc.getBlockY(), lowloc.getBlockZ());
+            if (lowlocloccopy.getChunk().isLoaded()) {
+                lowlocloccopy.setY(lowloc.getBlockY() + i);
+                p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+                lowlocloccopy.setX(highloc.getBlockX());
+                p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+                lowlocloccopy.setZ(highloc.getBlockZ());
+                p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+                lowlocloccopy.setX(lowloc.getBlockX());
+                p.sendBlockChange(lowlocloccopy, lowlocloccopy.getBlock().getType(), (byte) 0);
+            }
+        }
+    }
+
+    /**
+     * 是 Folia 端
+     *
+     * @return boolean
+     */
+    public static boolean isFolia() {
+        try {
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+            return true;
+        } catch (ClassNotFoundException ignored) {
+            return false;
+        }
+    }
 
     /**
      * 输出日志
@@ -84,8 +183,12 @@ public class Basic extends JavaPlugin {
      * @param chat 文本
      */
     public void chat(Player player, String chat) {
-        BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-        scheduler.scheduleSyncDelayedTask(this, () -> player.chat(chat),1);
+        if (folia) {
+            player.chat(chat);
+        } else {
+            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this,
+                    () -> player.chat(chat));
+        }
     }
 
     /**
