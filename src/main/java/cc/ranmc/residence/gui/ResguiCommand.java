@@ -65,6 +65,7 @@ public class ResguiCommand implements CommandExecutor {
 
         //打开玩家权限管理菜单指令
         if (args.length == 1) {
+
             if (args[0].equalsIgnoreCase("perm")) {
                 if (sender.hasPermission("resgui.user")) {
                     ClaimedResidence claimedResidence = ResidenceApi.getResidenceManager().getByLoc(p.getLocation());

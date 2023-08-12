@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 
 public class Basic extends JavaPlugin {
 
-    public static String PREFIX = "§b[RESGUI] ";
+    public static String PREFIX = "§b桃花源>>>";
     public static String AUTHOR = "§dRanica";
     public static String WEB = "https://www.ranmc.cn/";
     public final boolean folia = isFolia();

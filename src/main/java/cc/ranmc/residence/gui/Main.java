@@ -46,13 +46,9 @@ public class Main extends Basic implements Listener {
 
 		//注册指令
 		Objects.requireNonNull(getCommand("resgui")).setExecutor(new ResguiCommand(this));
-
+		Objects.requireNonNull(getCommand("restp")).setExecutor(new RestpCommand(this));
 	    //加载配置
 	    loadConfig();
-	    
-	    //检查更新
-	    //updateCheck();
-	    
 	    //注册Event
         Bukkit.getPluginManager().registerEvents(this, this);
         
@@ -137,7 +133,7 @@ public class Main extends Basic implements Listener {
 			ClaimedResidence claimedResidence = ResidenceApi.getResidenceManager().getByLoc(p.getLocation());
 			//判断是否在领地
 			if (claimedResidence == null) {
-				p.sendMessage(color("&c你当前不在领地内"));
+				p.sendMessage(Basic.PREFIX + color("&c你当前不在领地内"));
 				p.closeInventory();
 				return;
 			}
@@ -149,7 +145,7 @@ public class Main extends Basic implements Listener {
 				admin = claimedResidence.getPermissions().getPlayerFlags(p.getName()).get("admin");
 			}
 			if ((admin == null || !admin) && !claimedResidence.getOwner().equalsIgnoreCase(p.getName())) {
-				p.sendMessage(color("&c你没有权限设置该领地"));
+				p.sendMessage(Basic.PREFIX + color("&c你没有权限设置该领地"));
 				return;
 			}
 			
@@ -176,7 +172,7 @@ public class Main extends Basic implements Listener {
 					SignApi.newMenu("欢迎%player来到" + claimedResidence.getResidenceName())
 				            .response((player, strings) -> {
 				            	claimedResidence.setEnterMessage(strings[0]+strings[1]+strings[2]+strings[3]);
-				            	p.sendMessage(color("&e消息文本已设置"));
+				            	p.sendMessage(Basic.PREFIX + color("&e消息文本已设置"));
 				                return true;
 				            }).open(p);
 				}
@@ -186,7 +182,7 @@ public class Main extends Basic implements Listener {
 					SignApi.newMenu("%player离开了" + claimedResidence.getResidenceName())
 				            .response((player, strings) -> {
 				            	claimedResidence.setLeaveMessage(strings[0]+strings[1]+strings[2]+strings[3]);
-				            	p.sendMessage(color("&e消息文本已设置"));
+				            	p.sendMessage(Basic.PREFIX + color("&e消息文本已设置"));
 				                return true;
 				            }).open(p);
 				}
@@ -245,7 +241,7 @@ public class Main extends Basic implements Listener {
 			ClaimedResidence claimedResidence = ResidenceApi.getResidenceManager().getByLoc(p.getLocation());
 			//判断是否在领地
 			if (claimedResidence==null) {
-				p.sendMessage(color("&c你当前不在领地内"));
+				p.sendMessage(Basic.PREFIX + color("&c你当前不在领地内"));
 				p.closeInventory();
 				return;
 			}
@@ -257,7 +253,7 @@ public class Main extends Basic implements Listener {
 				admin = claimedResidence.getPermissions().getPlayerFlags(p.getName()).get("admin");
 			}
 			if ((admin==null  || !admin) && (!claimedResidence.getOwner().equalsIgnoreCase(p.getName()))) {
-				p.sendMessage(color("&c你没有权限设置该领地"));
+				p.sendMessage(Basic.PREFIX + color("&c你没有权限设置该领地"));
 				return;
 			}
 			
@@ -331,7 +327,7 @@ public class Main extends Basic implements Listener {
 			ClaimedResidence claimedResidence = ResidenceApi.getResidenceManager().getByLoc(p.getLocation());
 			//判断是否在领地
 			if (claimedResidence==null) {
-				p.sendMessage(color("&c你当前不在领地内"));
+				p.sendMessage(Basic.PREFIX + color("&c你当前不在领地内"));
 				p.closeInventory();
 				return;
 			}
@@ -343,7 +339,7 @@ public class Main extends Basic implements Listener {
 				admin = claimedResidence.getPermissions().getPlayerFlags(p.getName()).get("admin");
 			}
 			if ((admin==null || !admin) && !claimedResidence.getOwner().equalsIgnoreCase(p.getName())) {
-				p.sendMessage(color("&c你没有权限设置该领地"));
+				p.sendMessage(Basic.PREFIX + color("&c你没有权限设置该领地"));
 				return;
 			}
 			
@@ -385,7 +381,7 @@ public class Main extends Basic implements Listener {
 			ClaimedResidence claimedResidence = ResidenceApi.getResidenceManager().getByLoc(p.getLocation());
 			//判断是否在领地
 			if (claimedResidence==null) {
-				p.sendMessage(color("&c你当前不在领地内"));
+				p.sendMessage(Basic.PREFIX + color("&c你当前不在领地内"));
 				p.closeInventory();
 				return;
 			}
@@ -397,7 +393,7 @@ public class Main extends Basic implements Listener {
 				admin = claimedResidence.getPermissions().getPlayerFlags(p.getName()).get("admin");
 			}
 			if ((admin == null || !admin) && !claimedResidence.getOwner().equalsIgnoreCase(p.getName())) {
-				p.sendMessage(color("&c你没有权限设置该领地"));
+				p.sendMessage(Basic.PREFIX + color("&c你没有权限设置该领地"));
 				return;
 			}
 			
