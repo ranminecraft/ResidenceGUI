@@ -46,7 +46,6 @@ public class Main extends Basic implements Listener {
 
 		//注册指令
 		Objects.requireNonNull(getCommand("resgui")).setExecutor(new ResguiCommand(this));
-		Objects.requireNonNull(getCommand("restp")).setExecutor(new RestpCommand(this));
 	    //加载配置
 	    loadConfig();
 	    //注册Event

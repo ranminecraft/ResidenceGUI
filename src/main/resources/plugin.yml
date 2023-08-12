@@ -21,7 +21,3 @@ commands:
   resgui:
     description: resgui
     usage: /<command>
-
-  restp:
-    description: resgui
-    usage: /<command>
