@@ -279,29 +279,28 @@ public class Basic extends JavaPlugin {
      * @param claimedResidence 领地
      * @param inventory 背包
      * @param material 材质
-     * @param slot 坐标
      * @param name 名字
      * @param message 信息
      */
-    public void CreatePermButton(ClaimedResidence claimedResidence, Inventory inventory, Material material, int slot, String name, String message) {
+    public void CreatePermButton(ClaimedResidence claimedResidence, Inventory inventory, Material material, String name, String message) {
         String permName = name.substring(name.indexOf("(")+1,name.indexOf(")"));
         if (claimedResidence.getPermissions().getFlags().get(permName) == null) {
-            inventory.setItem(slot, createPermItem(material,name,"&e权限状态: &c未设置",message));
+            inventory.addItem(createPermItem(material,name,"&e权限状态: &c未设置",message));
         } else if (claimedResidence.getPermissions().getFlags().get(permName)) {
-            inventory.setItem(slot, createPermItem(material,name,"&e权限状态: &c是",message));
+            inventory.addItem(createPermItem(material,name,"&e权限状态: &c是",message));
         } else if (!claimedResidence.getPermissions().getFlags().get(permName)) {
-            inventory.setItem(slot, createPermItem(material,name,"&e权限状态: &c否",message));
+            inventory.addItem(createPermItem(material,name,"&e权限状态: &c否",message));
         }
     }
 
-    public void CreatePermButton(ClaimedResidence claimedResidence,Inventory inventory,Material material,int slot,String name,String message,String playerName) {
+    public void CreatePermButton(ClaimedResidence claimedResidence,Inventory inventory,Material material,String name,String message,String playerName) {
         String permName = name.substring(name.indexOf("(")+1,name.indexOf(")"));
         if (claimedResidence.getPermissions().getPlayerFlags(playerName).get(permName) == null) {
-            inventory.setItem(slot, createPermItem(material,name,"&e权限状态: &c未设置",message));
+            inventory.addItem(createPermItem(material,name,"&e权限状态: &c未设置",message));
         } else if (claimedResidence.getPermissions().getPlayerFlags(playerName).get(permName)) {
-            inventory.setItem(slot, createPermItem(material,name,"&e权限状态: &c是",message));
+            inventory.addItem(createPermItem(material,name,"&e权限状态: &c是",message));
         } else if (!claimedResidence.getPermissions().getPlayerFlags(playerName).get(permName)) {
-            inventory.setItem(slot, createPermItem(material,name,"&e权限状态: &c否",message));
+            inventory.addItem(createPermItem(material,name,"&e权限状态: &c否",message));
         }
     }
 
